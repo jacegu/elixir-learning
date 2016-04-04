@@ -7,14 +7,14 @@ defmodule TokenPassing do
     send(echoer1, "betty")
     send(echoer2, "fred")
 
-    wait_for_tokens
+    wait_for_tokens_from(echoer1)
+    wait_for_tokens_from(echoer2)
   end
 
-  def wait_for_tokens do
+  def wait_for_tokens_from(sender) do
     receive do
-      token ->
-        IO.puts("Received token #{token}")
-        wait_for_tokens
+      {^sender, token} ->
+        IO.puts("Received token #{token} from #{inspect(sender)}")
     after
       1_000 -> IO.puts("nothing after 1s")
     end
@@ -23,7 +23,7 @@ defmodule TokenPassing do
   defp spawn_token_echoer(receiver) do
     spawn(fn() ->
       receive do
-        token -> send(receiver, token)
+        token -> send(receiver, {self, token})
       end
     end)
   end
