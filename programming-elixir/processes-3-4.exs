@@ -1,7 +1,7 @@
 defmodule Processes do
 
   def run do
-    spawn_process(self)
+    spawn_process_raise(self)
 
     :timer.sleep(500)
 
@@ -12,8 +12,15 @@ defmodule Processes do
     end
   end
 
-  def spawn_process(parent) do
+  def spawn_process_message(parent) do
     spawn_link(fn() -> send(parent, "I'm alive") end)
+  end
+
+  def spawn_process_raise(parent) do
+    spawn_link(fn() ->
+      send(parent, "I'm alive")
+      raise "Boom"
+    end)
   end
 
 end
