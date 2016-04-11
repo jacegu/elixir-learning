@@ -9,4 +9,8 @@ defmodule Sequence.Server do
     {:reply, new_number, new_number}
   end
 
+  def handle_cast({:increment_number, delta}, current_number) do
+    {:noreply, current_number + delta}
+  end
+
 end
