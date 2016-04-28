@@ -1,14 +1,17 @@
 defmodule Otpstack.Server do
   use GenServer
 
-  def start_link(stack_name) do
+  @default_stack_name :otpstack
+
+  def start_link(stack_name \\ @default_stack_name) do
     {:ok, _pid} = GenServer.start_link(__MODULE__, _empty_stack = [], name: stack_name)
   end
 
-  def push(stack_name, :halt),   do: System.halt(0)
-  def push(stack_name, element), do: GenServer.cast(stack_name, {:push, element})
+  def push(stack_name \\ @default_stack_name, options), do: do_push(stack_name, options)
+  defp do_push(_stack_name, :halt),  do: System.halt(0)
+  defp do_push(stack_name, element), do: GenServer.cast(stack_name, {:push, element})
 
-  def pop(stack_name) do
+  def pop(stack_name \\ @default_stack_name) do
     GenServer.call(stack_name, :pop)
   end
 
