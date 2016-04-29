@@ -17,7 +17,7 @@ defmodule ProgrammingPhoenix.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-    get "/hello", HelloController, :hello
+    get "/hello/:name", HelloController, :hello
   end
 
   # Other scopes may use custom stacks.
