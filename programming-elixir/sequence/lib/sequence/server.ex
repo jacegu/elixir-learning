@@ -1,8 +1,8 @@
 defmodule Sequence.Server do
   use GenServer
 
-  def start_link(initial_number) do
-    GenServer.start_link(__MODULE__, initial_number, name: __MODULE__)
+  def start_link(stash) do
+    GenServer.start_link(__MODULE__, stash, name: __MODULE__)
   end
 
   def next_number do
@@ -17,16 +17,26 @@ defmodule Sequence.Server do
     GenServer.cast(__MODULE__, {:increment_number, delta})
   end
 
-  def handle_call(:next_number, _from, current_number) do
-    {:reply, current_number, current_number+1}
+
+  def init(stash) do
+    current_number = Sequence.Stash.get_value(stash)
+    { :ok, {current_number, stash} }
   end
 
-  def handle_call({:reset_number, new_number}, _from, _current_number) do
-    {:reply, new_number, new_number}
+  def handle_call(:next_number, _from, {current_number, stash}) do
+    {:reply, current_number, {current_number+1, stash}}
   end
 
-  def handle_cast({:increment_number, delta}, current_number) do
-    {:noreply, current_number + delta}
+  def handle_call({:reset_number, new_number}, _from, {_current_number, stash}) do
+    {:reply, new_number, {new_number, stash}}
+  end
+
+  def handle_cast({:increment_number, delta}, {current_number, stash}) do
+    {:noreply, {current_number + delta, stash}}
+  end
+
+  def terminate(_reason, {current_number, stash}) do
+    Sequence.Stash.save_value(stash, current_number)
   end
 
 end
